@@ -1,0 +1,87 @@
+import pygame
+
+# Initialize pygame
+pygame.init()
+
+# Screen dimensions
+SCREEN_WIDTH, SCREEN_HEIGHT = 800, 800
+SQUARE_SIZE = SCREEN_WIDTH // 8
+PIECE_RADIUS = SQUARE_SIZE // 2 - 10
+
+# Colors
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
+RED = (255, 0, 0)
+BLUE = (0, 0, 255)
+
+# Screen setup
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+pygame.display.set_caption("Checkers")
+
+# Draw the board
+def draw_board():
+    screen.fill(BLACK)
+    for row in range(8):
+        for col in range(8):
+            if (row + col) % 2 == 1:
+                pygame.draw.rect(screen, WHITE, (col * SQUARE_SIZE, row * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
+
+# Draw pieces
+def draw_pieces(board):
+    for row in range(8):
+        for col in range(8):
+            piece = board[row][col]
+            if piece != 0:
+                color = RED if piece == 1 else BLUE
+                pygame.draw.circle(screen, color, (col * SQUARE_SIZE + SQUARE_SIZE // 2, row * SQUARE_SIZE + SQUARE_SIZE // 2), PIECE_RADIUS)
+
+# Initial board setup
+def initial_board():
+    board = [[0] * 8 for _ in range(8)]
+    for row in range(3):
+        for col in range(8):
+            if (row + col) % 2 == 1:
+                board[row][col] = 1  # Player 1 pieces
+    for row in range(5, 8):
+        for col in range(8):
+            if (row + col) % 2 == 1:
+                board[row][col] = 2  # Player 2 pieces
+    return board
+
+# Main game loop
+def main():
+    clock = pygame.time.Clock()
+    board = initial_board()
+    selected_piece = None
+    player_turn = 1
+
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                pos = pygame.mouse.get_pos()
+                row, col = pos[1] // SQUARE_SIZE, pos[0] // SQUARE_SIZE
+                if selected_piece:
+                    # Move piece
+                    piece_row, piece_col = selected_piece
+                    if (row + col) % 2 == 1 and board[row][col] == 0:
+                        board[row][col] = board[piece_row][piece_col]
+                        board[piece_row][piece_col] = 0
+                        player_turn = 3 - player_turn
+                    selected_piece = None
+                else:
+                    # Select piece
+                    if board[row][col] == player_turn:
+                        selected_piece = (row, col)
+
+        draw_board()
+        draw_pieces(board)
+        pygame.display.flip()
+        clock.tick(60)
+
+    pygame.quit()
+
+if __name__ == "__main__":
+    main()
